@@ -1,0 +1,77 @@
+깃랩
+
+#########################
+
+branch는 버전 관리용이다
+main으로 할지 master로 할지 remote 설정 후 pull할 떄 main, master 설정한다 
+
+
+
+가져올 디렉토리에서 1.git init, 2.git remote add 설정을 하지 않으면 프로젝트를 가져올수없음
+
+
+####################### 깃 #######################
+//해당 디랙토리애서 init    브란치를 main으로
+1.git init --initial-branch=main   
+
+git branch  main    <- 이렇게 브란치 만들어도 되고
+git branch -d main  <- 브란치 삭제 방법
+
+//레포지토리 remote (깃허브 레포지토리 저장소 설정) ## 이름이랑 토큰으로 만들어야함 
+2.git remote add BEFE https://shineunshik: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@github.com/shineunshik/Back_Front_Project.git
+
+//깃 허브 프로젝트 가져오기 (main 으로)
+git pull MyApplication main
+
+//리모트된 저장소 확인
+git remote -v
+
+//push
+git add .
+git commit -m "Your commit message"     <-  사전에 브란치이 생성하지않고 commit을하면 자동으로 브란치가 생김(master나 main으로)
+					    그러므로 브란치를 적용시키려면 commmit 전에 브란치는 만들어야8 함 
+git push FE main    <- origin  부분은  git remote -v 했을때 나오는 이름 (main으로 푸시)
+
+
+####################### 깃랩 #######################
+//해당 디렉토리에서 깃랩이랑 remote할 저장소 설정   ## 이름이랑 토큰으로 만들어야함 
+git remote add gitlab https://shineunshik:glpat-M2_z6VLo6QZfxj6cxzGU@gitlab.com/group_ses/project_1
+
+
+//깃랩으로 프로젝트 push  (main으로 푸시)
+git push gitlab main
+이름 입력 패스워드에는 토큰 넣기
+
+//gitlab의 main 브란치 생성을 위해 다시 프로젝트 가져오기 (main으로 pull)
+git pull gitlab main
+
+
+
+//push
+git add .
+git commit -m "Your commit message"
+git push gitlab main    <- origin  부분은  git remote -v 했을때 나오는 이름
+
+
+
+
+
+
+************ remote 옵션 설명 ***********
+일반적으로 사용되는 git remote 명령어의 일부는 다음과 같습니다:
+
+git remote -v: 현재 프로젝트에 등록된 모든 리모트 저장소를 보여줍니다. URL도 함께 표시됩니다.
+git remote add <이름> <URL>: 새로운 리모트 저장소를 추가합니다. <이름>은 로컬에서 사용할 리모트 저장소의 이름이며, <URL>은 리모트 저장소의 주소입니다.
+git remote rm <이름>: 지정된 이름의 리모트 저장소를 삭제합니다.
+git remote rename <이전이름> <새로운이름>: 기존의 리모트 저장소의 이름을 변경합니다.
+
+아래는 참고
+//로컬에서 Gitlab Repo를 생성하고자 하는 폴더로 이동
+git init --initial-branch=main 실행
+//Gitlab 계정설정(둘 중 선택)
+git config --global user.name “유저네임”
+git config --global user.email “ID@domain”
+
+
+
+

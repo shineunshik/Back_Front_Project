@@ -1,0 +1,59 @@
+//도커 파일
+
+FROM ubuntu
+WORKDIR /home/spring
+COPY /demo-0.0.1-SNAPSHOT.jar /home/spring
+COPY /setting.sh /home/spring
+RUN apt update && apt install -y vim openssh-server curl vim net-tools lsof
+RUN apt update && apt install -y openjdk-17-jdk openjdk-17-jre
+RUN chmod 755 /home/spring/demo-0.0.1-SNAPSHOT.jar
+RUN chmod 755 /home/spring/setting.sh
+CMD ["/bin/bash", "-c", "sleep infinity & wait"]
+ENTRYPOINT ["./setting.sh"] 
+
+
+//setting.sh 파일
+
+#!/bin/bash
+  
+chmod 755 demo-0.0.1-SNAPSHOT.jar
+java -jar demo-0.0.1-SNAPSHOT.jar
+
+
+
+
+
+//yaml 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: web-ubuntu
+  name: web-ubuntu
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: web-ubuntu
+  template:
+    metadata:
+      labels:
+        app: web-ubuntu
+    spec:
+      containers:
+      - image: eunshik/web-test3
+        name: web-ubuntu
+        ports:
+        - containerPort: 8085
+          # command: ["mkdir","sdfklsdfjsdlk"] CMD,ENTRYPOINT가 들어가면 COMMAND 넣으면 안됨 오류 남
+        volumeMounts:
+        - name: ses
+          mountPath: /home/sc.sh 
+      imagePullSecrets:
+      - name: ses-secret
+      volumes:
+      - name: ses  
+        hostPath:
+          path: /root/sc.sh # 반드시 워크노드에도 해당 파일이 있어야만 공유가 된다
+          type: FileOrCreate

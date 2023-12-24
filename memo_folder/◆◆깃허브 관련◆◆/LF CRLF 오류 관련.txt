@@ -1,0 +1,8 @@
+git add .  했을때  LF will be replaced by CRLF the next time Git touches it  오류 해결
+
+윈도우
+git config --global core.autocrlf true
+
+
+리눅스
+git config --global core.autocrlf input

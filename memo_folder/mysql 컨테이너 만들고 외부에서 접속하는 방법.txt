@@ -1,0 +1,49 @@
+// 아래 코드는 외부 호스트에서 접속할수있도록 권한을 줌
+CREATE USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '1234';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+
+//비밀번호 설정
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '1234';
+//설정한거 반영하기
+FLUSH PRIVILEGES;
+
+
+// 아래는 도커파일인데 우분투 서버에 mysql만 설치하고 셋팅하는 코드
+# 베이스 이미지로부터 시작
+FROM ubuntu:latest
+
+RUN mkdir nonexistent
+
+# 패키지 업데이트 및 MySQL 설치
+RUN apt update && apt install -y vim openssh-server curl net-tools wget unzip lsof
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY init.sql /docker-entrypoint-initdb.d/
+
+ENV MYSQL_ROOT_PASSWORD=1234
+ENV MYSQL_DATABASE=board_back
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=1234
+ENV MYSQL_PORT=3306
+
+COPY setting.sh /home
+COPY my.cnf /etc/mysql/my.cnf
+RUN chmod 755 /home/setting.sh
+EXPOSE 3306
+
+RUN service mysql start && mysql -u root -p${MYSQL_ROOT_PASSWORD} -h localhost < /docker-entrypoint-initdb.d/init.sql
+
+ENTRYPOINT ["./home/setting.sh"]
+
+
+
+// 컨테이너 만들때 -p=3306:3306 포트포워딩을 해야 원격으로 들어갈수있다
+docker run -d -it --name=web -p=3306:3306 web
+
+
+
+// 위 컨테이너 만들때 외부에서 접속할수 있도록 셋팅을 함아래 명령어로  접속 가능  (apt install -y mysql-client)
+
+mysql -h 127.0.0.1 -P 3306 -u root -p

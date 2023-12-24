@@ -1,0 +1,103 @@
+Dockerfile 만들기
+
+FROM nginx                                                   #nginx 이미지를 기반으로 만듬
+RUN apt update && apt install -y vim openssh-server curl       #각종 패키지 설치
+RUN apt update && apt install -y openjdk-17-jdk openjdk-17-jre  #스프링프로젝트에 맞는 자바 jdk 버전 설치
+WORKDIR /home/spring-app                                         #프로젝트가 복사되고 컨테이너가 시작되는 디폴트 위치 (만들어도되고 없으면 만들어짐)
+COPY /demo-0.0.1-SNAPSHOT.jar .                                   #도커파일을 만들때 로컬에 있는 파일 복사 (root에 있는 파일만 되는것 같음)
+ENTRYPOINT ["java", "-jar", "demo-0.0.1-SNAPSHOT.jar"]             #컨테이너 시작히 실행될 명령어
+
+RUN은 이미지가 만들어질때 실행
+ENTRYPOINT는 이미지가 만들어지고 컨테이너가 실행될때 실행
+
+
+docker build -t spring-app .    <- 도커파일이 있는 위치에서 실행 (이미지 만듬)
+docker images                   <- 생성된 이미지 확인
+
+docker run --name=webserver -d -it -p=80:8080 spring-app     
+<- webserver라는 컨테이너를 만든다
+<- -d는 백그라운드에서 실행하는 명령어 
+<- -it는 명령프롬프트를 실행하라는 명령어 (ubuntu,centos는 필수 안해주면 실행이안됨)
+<- -p=80:8080  스프링프로젝트가 8080 포트로 만들어져서 호스트80포트에 스프링프로젝트의 8080포트를 포트포워딩해라는 의미
+<- local 웹브라우저에서 127.0.0.1:80 을하면 스프링웹이 열린다.
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 이까지 도커로 컨테이너 실행ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+
+
+
+
+
+
+------------------------------------------쿠버네티스에서 도커허브(프라이빗)에 있는 nginx(스프링프로젝트)이미지 빌드하기------------------------------------------------------
+/////////도커 허브에 로그인 후 이미지 푸시 풀////////////
+docker login  아이디 입력 후 패스워드 입력 후 success
+
+docker tag 이미지 eunshik/이미지    <- 푸시 전 태그를 달아줌
+
+docker push eunshik/이미지   <- 이미지 푸시
+
+
+도커허브 프라이빗 저장소에 있기 때문에 secret 생성 후 진행해야함
+
+kubectl create secret docker-registry ses-secret --docker-server=https://index.docker.io/v1/ --docker-username=dmstlrgkxm@naver.com --docker-password=ses89ses89@ --docker-email=dmstlrgkxm@naver.com
+<- 시크릿 생성
+<- --docker-server=https://index.docker.io/v1/      <- 이부분은 도커허브 저장소에서 가져오려면   https://index.docker.io/v1/    <- 이값이 디폴트임
+<- 뒤에는 계정 연결
+
+kubctl get secret 
+<- ses-secret 이라는 시크릿이 생성
+
+
+pod생성 yaml 파일 만들기
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: spring-app
+  name: spring-app
+spec:
+  containers:
+  - image: eunshik/spring-app        <- 계정네임스페이스/프라이빗레포지토리
+    name: spring-app
+  imagePullSecrets:
+  - name: ses-secret                <- 도커허브계정에 대한 시크릿
+
+kubectl apply -f yaml파일을 하면 pod 생성됨
+
+
+파드 아이피로 스프링 웹 접속가능
+curl 파드ip:8080
+
+포트 포워딩 해주면 머신 로컬ip로 접속 가능
+kubectl port-forward spring-app 80:8080
+curl 127.0.0.1:80
+
+
+---->  이어서 노드포트 서비스를 활용
+
+
+
+
+
+버전 업데이트된 jar파일을 컨테이너에 적용시키는 방법
+
+
+1. 버전1의 jar파일이 담긴 Dockerfile을 만들어서 버전1 이미지를 만들고 그 이미지로 yaml로 배포를 한다.
+2.  버전2의 jar파일이 담길 Dockerfile을 만들어서 버전2 이미지를 만들고 기존 yaml파일에 버전2 이미지를 적용시켜서 업데이트한다.
+
+
+-- set image 명령어로 컨테이너 업데이트 방법 --
+kubectl set image deployment spring-app spring-app=eunshik/spring-app-v1 --record
+
+
+쿠버네티스가 제공하는 edit 편집기를 이용하는 방법
+kubectl edit deployment spring-app    
+<-들어가서 안에 내용을 수정하고 저장하면 업데이트가 된다.
+
+edit 수정방법은 변경된 히스토리가 남지 않는다.
+
+
+
+

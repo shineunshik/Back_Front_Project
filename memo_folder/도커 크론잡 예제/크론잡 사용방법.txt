@@ -1,0 +1,17 @@
+apt update
+apt install cron
+//설치
+
+crontab -e
+//일정 추가
+
+* * * * * /root/file.py
+//일정
+
+service cron restart
+//cron 재시작
+
+
+crontab -l 
+//등록된 cron 확인
+

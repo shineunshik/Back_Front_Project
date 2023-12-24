@@ -1,0 +1,157 @@
+docker run -d --name webserver -p 80:80 nginx
+
+nginx 이미지를 가져와서 webserver라는 컨테이너를 만든다
+호스트 80 포트에 컨테이너 80포트를 포트포워딩한다.
+-d는 백그라운드에서 실행
+
+
+버추얼 박스 네트워크에서 포트포워딩 설정 해줘야 함
+호스트ip 127.0.0.1
+호스트 포트 80
+
+게스크 ip는 컨테이너가 실행되고있는  가상머신 ip
+포트 80
+
+
+설정 후 local 브라우저에서  127.0.0.1:80
+하면 nginx 페이지가 열림
+
+
+컨테이터 안에 들어가기
+docker exec -it 컨테이너이름 /bin/bash
+
+
+
+
+//////////도커 파일 생성
+vi Dockerfile
+--> FROM nginx:1.14
+
+이렇게만 만들어도 도커파일로 이미지를 만들 수 잇음
+docker build -t 만들이미지이름
+-> 이렇게하면 이미지가 만들어짐 docker images 하면 나옴
+docker run -d --name=webserver -p=80:80 만든이미지이름
+-> 이미지로 컨테이너가 만들어짐
+
+docker exec -it 컨테이너이름 /bin/bash
+-> 컨테이너로 들어감
+
+cd /usr/share/nginx/html
+echo hello > index.html
+-> index.html 파일을 hello로 수정하고
+
+로컬 브라우저에서 127.0.0.1:80 하면 hello가 출력됨 
+
+
+docker ps -a -q 
+-q는 아이디만 표시하는 명령어 
+-a는  살아있는 죽어있는 컨테이너 모두 표시 all
+
+
+ENTRYPOINT,CMD  <- docker build 로 이미지를 만들고 이미지로 컨테이너를 생성할때 실행하는 명령어
+RUN <- docker build로 이미지를 만들때 실행하는 명령어
+
+ENTRYPOINT <- 무조건 실핼됨  이미지로 컨테이너가 생성될떄 명령어를 주면 생성될때 주는 명령어는 무시하고 ENTRYPOINT 명령을 실행
+
+CMD <- 이미지로 컨테이너가 생성될떄 명령어를 주면 CMD 명령어는 생략됨 (명령어를 여러개 기술할수있지만 마지막 명령어만 실행됨)
+
+RUN <- RUN명령어는 RUN  한줄에 기술한 명령어마다 새로운 레이어가 생성되고 다음 줄에 또 RUN을 실행하게되면 새로운 레이어가 생기고 리셋된다
+	반드시 &&로 한줄에 나열해주자  주로 apt update && apt install vim -y 등 이미지에 패키지를 기본적으로 적용할 수 있도록 한다.
+
+
+WORKDIR <- 여기는 경로를 지정하는 곳인데 경로를 지정하게되면 지정한 경로를 기준으로 CMD,RUN,ENTRYPOINT,COPY등 모든 명령어 실행된다.
+
+
+ㅡㅡㅡㅡㅡRUN,WORKDIR,COPY 예제ㅡㅡㅡㅡㅡ
+<아래와 같이 Dockerfile 생성>
+FROM ubuntu
+RUN mkdir /home/ses
+WORKDIR /home/ses
+COPY /ses/sesTest.txt .
+
+<-위와 같이 도커파일을 생성하고 이미지 빌드를하면 ubuntu 이미지에 /home/ses 폴더가 생성되고 /home/ses 가 디폴트 작업 경로로 적용되어
+호스트에 ses폴더에 있는 sesTest.txt 파일을 컨테이너 /home/ses 폴더에 복사가 된다.
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+--------------------
+볼륨 사용하기 (동기화)
+docker run -d -it --name=ubuntu -v /root/dockerdate:/home ubuntu
+                                   호스트볼륨 : 컨테이너 볼륨
+
+docker exec -it 컨테이너아이디 /bin/bash
+
+cd home 에 들어가면 dockerdate안에 있는 데이터들이 똑같이 생성되어있다
+그리고 컨테이너볼륨에서 데이터를 수정하면 호스트볼륨에도 똑같이 수정이되어있다
+컨테이너볼륨에서 수정해도 호스트에서도 수정이되어있음
+양방향 동기화
+컨테이너가 삭제되면 안에 데이터가 모두 삭제되기때문에 호스트볼륨에 백업용도로 씀 (예:mysql의 데이터)
+
+이미 만들어져있는 컨테이너의 볼륨(데이터)를  공유하기
+docker run -d --name=nginxweb --volumes-from=ubuntu nginx
+<- 위에서 ubuntu 라고 만든 컨테이너의 볼륨을 그대로 공유하고 서로 동기화가 가능하다
+
+---도커에서 지원하는 볼륨 관리 기능---
+볼륨생성
+docker create volume --name=db   <- db라는 볼륨 생성
+docker run -d --name=nginxweb -v=db:/home nginx    <- 도커에서 생성한 db 볼륨 참조 (곻유,서로 양방향 수정 가능)
+위애에서 생성한 볼륨은 /var/lib/docker/volumes/볼륨이름/_date   <-이 폴더에 데이터가 저장되고 공유되고 서로 양방향 동기화된다
+
+
+---볼륨에서 쓰기말고 읽기 전용으로 볼륨 관리하기--  ( :ro 옵션  )
+docker run -d --name=nginxweb -v=db:/home:ro nginx      <- :ro 옵션 적용
+호스트에서 생성한 db 볼륨을 nginxweb컨테이너가 참조는 하되 nginxweb 컨테이터는 수정을 하지 못함
+하지만 호스트에서 데이터를 수정하면 nginxweb 컨테이너에서는 수정반영이 됨
+
+
+
+
+
+--로그 확인--
+docker logs 컨테이너 아이디
+-> 해당 컨테이너의 모든 로그 출력
+docker logs --tail 10 컨테이너 아이디
+-> 해당 컨테이너의 마지막 로그 10줄 출력
+docker logs -f 컨테이너 아이디
+-> 해당 컨테이너의 실시간 로그 확인 (창을 새로 띄워서 확인하는게 좋음)
+docker logs -f -t 컨테이너 아이디
+-> 해당 컨테이너 로그의 타임스탬프 표시
+
+호스트의 로그 저장 경로
+ cat /var/lib/docker/containers/컨테이너아이디/컨테이너아이디-json.log
+
+
+
+
+
+
+
+--컨테이너로 이미지 만들기--
+이미 만들어진 컨테이너를 기반으로 이미지 생성
+docker commit 컨테이너 새로운컨테이너이름
+docker commit nginx-test new-nginx-test    <-  이렇게하면 new-nginx-test라는 이미지가 만들어진다
+
+
+
+
+
+
+------스프링 프로젝트 jar파일을 우분투에 올려서 작동햇을때 주의사항------------
+스프링 프로젝트는 포트번호가 8080으로 되어있어서
+버추얼박스 설정에 게스트는 8080으로 하고 호스트는 원하는대로 설정해서  127.0.0.1:원하는포트로
+접속하면 작동된다
+
+주의사항
+가상머신 안 우분투에서 컨테이너(우분투 스프링)를 만들어서 스프링 웹을 실행 했을때
+컨테이너(우분투) 스프링 포트는 8080이고
+컨테이너 실행시킬때 포트포워딩은 -p:9191:8080으로 했기때문에 
+가상머신의 우분투 포트는 8080이다
+그리고 로컬에서 컨테이너(우분투 스프링)의 스프링 웹을  실행시키려면
+가상머신 네트워크 포트포워딩에서  게스트는 9191 호스트는 원하는포트 예 9292로 하게되면
+로컬에서 127.0.0.1:9292 하면 컨테이너의 스프링 웹이 열린다
+
+
+
+
+
+

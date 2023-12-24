@@ -1,0 +1,2 @@
+SELECT User, Host, authentication_string FROM mysql.user WHERE User='root';
+

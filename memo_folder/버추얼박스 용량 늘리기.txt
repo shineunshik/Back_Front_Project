@@ -1,0 +1,3 @@
+윈도우 cmd에서
+
+VBoxManage.exe modifyhd "C:\Users\dmstl\VirtualBox VMs\k8s-master\k8s-master.vdi" --resize 32768

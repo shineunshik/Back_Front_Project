@@ -1,0 +1,1 @@
+docker container logs [컨테이너_ID_또는_이름]

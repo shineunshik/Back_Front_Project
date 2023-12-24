@@ -1,0 +1,30 @@
+docker run -d --name docker-registry -p 5000:5000 registry  <- 도커 레지스트리 생성
+
+호스트포트의 5000번 포트와 registry 컨테이너 포트 5000를 매핑해서 run을 호출합니다.
+그럼 도커 허브에서 알아서 registry 이미지를 pull 받아서 컨테이너를 띄웁니다.
+
+
+docker tag image-name 127.0.0.1:5000/image-name    <- 이미지를 레지스트리에 올리려면 태그를 달아주어야 올라갑니다.
+
+
+docker push 127.0.0.1:5000/image-name    <- 이미지를 레지스트리에 푸시해줍니다.
+
+
+
+docker pull 127.0.0.1:5000/image-name     <- 레지스트링레 있는 이미지를 풀로 받을 수 있습니다.
+
+
+curl http://HOST:PORT/v2/_catalog     <- 호스트 레지스트리에 등록되어있는 이미지 확인
+
+
+
+
+
+
+
+/////////도커 허브에 로그인 후 이미지 푸시 풀
+docker login -u 아이디      <- 아이디 입력 후 패스워드 입력 후 success
+
+docker tag 이미지 eunshik/이미지    <- 푸시 전 태그를 달아줌
+
+docker push eunshik/이미지   <- 이미지 푸시

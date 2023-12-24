@@ -1,0 +1,161 @@
+//git 설치
+apt update
+apt install -y git
+
+//git 로그인
+git config --global user.name shineunshik
+git config --global user.email dmstlrgkxm@naver.com
+
+
+
+//토큰 으로 해당 레포지토리 클론 (위 로그인을 하지 않아도 토큰으로 바로 다운 받아짐  하지만  로그인을 하지 않으면 push는 되지 않음)
+git clone https://shineunshik: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@github.com/shineunshik/Back_Front_Project.git
+
+
+//push
+git add .
+git commit -m "Your commit message"
+git push origin main
+
+//pull
+git pull origin main
+
+//git 허브 사용시 현재 로컬의 프로젝트 내용과 git허브 프로젝트 내용의 변경사항 비교 방법
+
+//현재 로컬의 프로젝트에서 가장 최근에 commit 한 프로젝트 head값 조회
+git rev-parse HEAD
+
+◆◆◆◆◆◆◆◆◆◆파이썬◆◆◆◆◆◆◆◆◆◆
+import subprocess
+
+def get_git_head(repo_path):
+    try:
+        # Git 명령어 실행: git rev-parse HEAD
+        result = subprocess.run(
+            ['git', 'rev-parse', 'HEAD'],
+            check=True,
+            cwd=repo_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        # 실행 결과에서 앞뒤 공백을 제거하고 HEAD 값을 반환
+        return result.stdout.strip()
+
+    except subprocess.CalledProcessError as e:
+        # 오류가 발생한 경우 예외 처리
+        print(f"Error: {e}")
+        return None
+
+# Git 저장소의 경로를 지정
+repository_path = '/root/project/MyApplication'
+
+# 함수 호출하여 HEAD 값 가져오기
+head_value = get_git_head(repository_path)
+
+if head_value:
+    print(f"{head_value}")
+else:
+    print("Failed to retrieve the HEAD commit.")
+◆◆◆◆◆◆◆◆◆◆파이썬◆◆◆◆◆◆◆◆◆◆
+
+
+//git 허브의 프로젝트 최신 상태 head 값 조회
+git ls-remote origin HEAD
+
+◆◆◆◆◆◆◆◆◆◆파이썬◆◆◆◆◆◆◆◆◆◆
+import subprocess
+
+def get_git_head(repo_path):
+    try:
+        # Git 명령어 실행: git rev-parse HEAD
+        result = subprocess.run(
+            ['git', 'ls-remote','origin', 'HEAD'],
+            check=True,
+            cwd=repo_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        HEAD_data = result.stdout.strip()
+        
+        # 실행 결과에서 앞뒤 공백을 제거하고 HEAD 값을 반환
+
+        #함께 출력되는 HEAD 문자 제거하고 출력
+        return HEAD_data.replace('HEAD','')
+
+    except subprocess.CalledProcessError as e:
+        # 오류가 발생한 경우 예외 처리
+        print(f"Error: {e}")
+        return None
+
+# Git 저장소의 경로를 지정
+repository_path = '/root/project/MyApplication'
+
+# 함수 호출하여 HEAD 값 가져오기
+head_value = get_git_head(repository_path)
+
+if head_value:
+    print(f"{head_value}")
+else:
+    print("Failed to retrieve the HEAD commit.")
+◆◆◆◆◆◆◆◆◆◆파이썬◆◆◆◆◆◆◆◆◆◆
+
+
+
+
+
+
+
+
+깃 버전과 로컬 버전의 비교해서 값을 반환하는 코드
+◆◆◆◆◆◆◆◆◆◆파이썬◆◆◆◆◆◆◆◆◆◆
+import subprocess
+
+def get_git_head(repo_path):
+    try:
+        # Git 명령어 실행: git rev-parse HEAD
+        result_local = subprocess.run(
+            ['git', 'rev-parse', 'HEAD'],
+            check=True,
+            cwd=repo_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        result_git = subprocess.run(
+            ['git', 'ls-remote','origin', 'HEAD'],
+            check=True,
+            cwd=repo_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        # 실행 결과에서 앞뒤 공백을 제거하고 HEAD 값을 반환
+        HEAD_replace = result_git.stdout.strip()
+
+        git_HEAD = HEAD_replace.replace('HEAD','')
+        local_HEAD = result_local.stdout.strip()
+        
+        if local_HEAD in git_HEAD:
+            data = '로컨 버전= '+local_HEAD+'\n깃 버전= '+git_HEAD+'\n최선 버전입니다.'
+        else:
+            data = '로컨 버전= '+local_HEAD+'\n깃 버전= '+git_HEAD+'\n버전이 변경되었습니다.'
+
+     
+        return print(data)
+
+    except subprocess.CalledProcessError as e:
+        # 오류가 발생한 경우 예외 처리
+        print(f"Error: {e}")
+        return None
+
+# Git 저장소의 경로를 지정
+repository_path = '/root/project/MyApplication'
+
+get_git_head(repository_path)
+◆◆◆◆◆◆◆◆◆◆파이썬◆◆◆◆◆◆◆◆◆◆
+
+

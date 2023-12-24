@@ -1,0 +1,1 @@
+nohup java -jar springboot-back-project-1.0-SNAPSHOT.jar > output.log 2>&1 &

@@ -1,0 +1,2 @@
+kill -9 `pgrep -f "java -jar springboot-back-project-1.0-SNAPSHOT.jar"`
+java -jar springboot-back-project-1.0-SNAPSHOT.jar
