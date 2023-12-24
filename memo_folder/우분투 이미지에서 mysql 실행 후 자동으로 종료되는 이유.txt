@@ -1,0 +1,22 @@
+<<<<<<< HEAD
+Dockerfile에서 ENTRYPOINT 지시문을 사용하여 컨테이너가 시작될 때 MySQL 서비스를 시작합니다. 
+그러나 service mysql start 명령이 완료되면 주 프로세스가 완료되어 컨테이너가 중지됩니다.
+
+
+컨테이너를 계속 실행하려면 MySQL 서비스를 백그라운드에서 실행해야 합니다
+
+CMD service mysql start && tail -f /dev/null
+
+CMD 지시문은 service mysql start 명령을 실행하고 /dev/null 파일을 계속해서 읽음으로써 컨테이너를 실행 상태로 유지합니다. 
+=======
+Dockerfile에서 ENTRYPOINT 지시문을 사용하여 컨테이너가 시작될 때 MySQL 서비스를 시작합니다. 
+그러나 service mysql start 명령이 완료되면 주 프로세스가 완료되어 컨테이너가 중지됩니다.
+
+
+컨테이너를 계속 실행하려면 MySQL 서비스를 백그라운드에서 실행해야 합니다
+
+CMD service mysql start && tail -f /dev/null
+
+CMD 지시문은 service mysql start 명령을 실행하고 /dev/null 파일을 계속해서 읽음으로써 컨테이너를 실행 상태로 유지합니다. 
+>>>>>>> c4dc212039c4bec0b296b3314563feac9e937809
+이는 MySQL 서비스가 시작된 후에도 컨테이너가 활성 상태로 유지되도록 합니다.
