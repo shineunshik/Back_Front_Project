@@ -1,0 +1,5 @@
+java -> openjdk-8-jdk
+
+gradle -> gradle-4.10.2
+
+node.js -> node 20.10 
