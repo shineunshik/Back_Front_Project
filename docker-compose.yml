@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  spring:
+    build:
+      context: folder-spring            # 도커파일이 위치한 디렉토리
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on: #의존성 설정으롤 mysql이 시작되기전에 spring이 먼저 시작하도록 하는 옵션
+      - mysql
+  react:
+    build:
+      context: folder-react             # 도커파일이 위치한 디렉토리
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+  mysql:
+    build:      
+      context: folder-mysql
+      dockerfile: Dockerfile
+    ports:
+      - "3306:3306"
