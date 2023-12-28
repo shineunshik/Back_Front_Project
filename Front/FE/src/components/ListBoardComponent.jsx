@@ -3,8 +3,8 @@ import axios from 'axios';
 
 function TestComponent() {
 
-    //const baseUrl = "http://3.37.138.101:8080"; //되는 코드
-    const baseUrl = "http://localhost:8080"; //api를요청할 ip
+    const baseUrl = "http://3.37.138.101:8080"; //되는 코드
+    //const baseUrl = "http://localhost:8080"; //api를요청할 ip
 
     const [ data, setData ] = useState();
 
